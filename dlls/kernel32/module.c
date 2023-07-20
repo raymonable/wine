@@ -345,6 +345,6 @@ static inline FARPROC get_proc_address_wrapper( HMODULE module, LPCSTR function 
 const char* wine_get_version_name = "wine_get_version"
 static inline FARPROC get_proc_address_wrapper( HMODULE module, LPCSTR function )
 {
-    if (!strcmp(function, wine_get_version_name)
+    if (!strcmp(function, wine_get_version_name))
       return get_proc_address( module, function );
 }
