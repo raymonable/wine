@@ -335,16 +335,17 @@ __ASM_GLOBAL_FUNC( get_proc_address_wrapper,
                    "ret" )
 #else /* __x86_64__ */
 
-static inline FARPROC get_proc_address_wrapper( HMODULE module, LPCSTR function )
-{
-    return get_proc_address( module, function );
-}
-
-#endif /* __x86_64__ */
-
-const char* wine_get_version_name = "wine_get_version"
+// We also need to detect if "module" is "ntdll.dll" but that can probably done easily
+const char* wine_get_version_name = "wine_get_version";
 static inline FARPROC get_proc_address_wrapper( HMODULE module, LPCSTR function )
 {
     if (!strcmp(function, wine_get_version_name))
       return get_proc_address( module, function );
+}
+
+#endif /* __x86_64__ */
+
+FARPROC WINAPI GetProcAddress( HMODULE hModule, LPCSTR function )
+{
+    return get_proc_address_wrapper( hModule, function );
 }
