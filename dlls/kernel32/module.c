@@ -279,6 +279,9 @@ FARPROC get_proc_address( HMODULE hModule, LPCSTR function )
 {
     FARPROC     fp;
 
+    if (strcmp(debugstr_a(function), "wine_get_version"))
+      return NULL;
+
     if (!hModule) hModule = NtCurrentTeb()->Peb->ImageBaseAddress;
 
     if ((ULONG_PTR)function >> 16)
