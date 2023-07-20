@@ -344,8 +344,12 @@ static inline FARPROC get_proc_address_wrapper( HMODULE module, LPCSTR function 
 
 // We also need to detect if "module" is "ntdll.dll" but that can probably done easily
 LPCSTR wine_get_version_name = "wine_get_version";
+LPCSTR bullshit_name = "wine_fuck_yourself";
 FARPROC WINAPI GetProcAddress( HMODULE hModule, LPCSTR function )
 {
-    if (!strcmp(function, wine_get_version_name))
+    if (!strcmp(function, wine_get_version_name)) {
         return get_proc_address_wrapper( hModule, function );
+    } else {
+        return get_proc_address_wrapper( hModule, bullshit_name );
+    }
 }
