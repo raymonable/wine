@@ -275,12 +275,28 @@ BOOL WINAPI GetBinaryTypeA( LPCSTR lpApplicationName, LPDWORD lpBinaryType )
  *  Success: A pointer to the symbol in the process address space.
  *  Failure: NULL. Use GetLastError() to determine the cause.
  */
+
+const char* invalidSymbols[] = {
+    "wine_get_version",
+    "wine_get_build_id",
+    "wine_get_host_version"
+};
+
+BOOL verifySymbol(LPCSTR symbol) {
+    BOOL success = TRUE;
+    for (size_t i = 0; i < sizeof(invalidSymbols) / sizeof(invalidSymbols[0]); i++) {
+        if (lstrcmpA(symbol, invalidSymbols[i]) == 0)
+        {
+            success = FALSE;
+            break;
+        }
+    }
+    return success;
+}
+
 FARPROC get_proc_address( HMODULE hModule, LPCSTR function )
 {
     FARPROC     fp;
-
-    if (lstrcmpA(debugstr_a(function), "wine_get_version") == 0)
-        return NULL;
 
     if (!hModule) hModule = NtCurrentTeb()->Peb->ImageBaseAddress;
 
@@ -288,7 +304,18 @@ FARPROC get_proc_address( HMODULE hModule, LPCSTR function )
     {
         ANSI_STRING     str;
 
+        /*
+        
+        ANSI_STRING is a Win32 type that contains 3 objects inside; Length, MaximumLength and Buffer.
+        Buffer is a PCHAR, which is a type for char*.
+        As such, we can extract the symbol out of there and compare it to a list of other symbols.
+        
+        */
+
         RtlInitAnsiString( &str, function );
+        if (verifySymbol(str.Buffer) != TRUE)
+            return NULL;        
+
         if (!set_ntstatus( LdrGetProcedureAddress( hModule, &str, 0, (void**)&fp ))) return NULL;
     }
     else
